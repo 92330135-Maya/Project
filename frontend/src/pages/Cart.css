@@ -1,0 +1,160 @@
+.cart-container {
+  padding: 20px;
+  padding-top: 120px;
+  font-family: Arial, sans-serif;
+  background-color: #fafafa; /* خلفية ناعمة */
+}
+
+.cart-item {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cart-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+.cart-item-image {
+  width: 120px;
+  border-radius: 10px;
+  transition: opacity 0.3s ease;
+  object-fit: cover;
+}
+
+.cart-item-right {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.cart-item-details h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.cart-item-details p {
+  margin: 0;
+  color: #555;
+}
+
+/* === أزرار + و - كما هي === */
+.counter-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.counter-buttons button {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.counter-buttons button:hover {
+  background-color: #f0f0f0;
+  border-color: #999;
+}
+
+.counter-buttons span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* === زر Place Order محسّن === */
+.btn1 {
+  background-color: #ff6347;
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(255, 99, 71, 0.4);
+  display: block;
+  margin-left: auto;
+}
+
+.btn1:hover {
+  background-color: #e5533d;
+  box-shadow: 0 6px 12px rgba(255, 99, 71, 0.5);
+}
+
+/* ================== Responsive للموبايل ================== */
+@media (max-width: 480px) {
+
+  .cart-container {
+    padding: 15px;
+    padding-top: 100px;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+  }
+
+  .cart-item-image {
+    width: 90px;
+    border-radius: 8px;
+  }
+
+  .cart-item-right {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .cart-item-details h3 {
+    font-size: 14px;
+  }
+
+  .cart-item-details p {
+    font-size: 12px;
+  }
+
+  .counter-buttons {
+    gap: 4px;
+  }
+
+  .counter-buttons button {
+    padding: 2px 8px;
+    font-size: 0.8em;
+  }
+
+  .counter-buttons span {
+    min-width: 18px;
+    font-size: 0.9em;
+  }
+
+  .btn1 {
+    width: auto;
+    padding: 8px 20px;
+    font-size: 0.8em;
+    border-radius: 25px;
+    box-shadow: 0 2px 6px rgba(255, 99, 71, 0.3);
+    margin-left: 0;
+  }
+}

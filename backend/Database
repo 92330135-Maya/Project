@@ -1,0 +1,50 @@
+CREATE DATABASE project;
+USE project;
+
+CREATE TABLE menu (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(150) NOT NULL,
+    price DECIMAL(6,2) NOT NULL,
+    image VARCHAR(100) NOT NULL
+);
+
+INSERT INTO menu (item_name, price, image) VALUES
+('Margherita pizza', 5.00, 'pizza.jpeg'),
+('Cheese Burger', 7.00, 'burger.jpeg'),
+('Italian Pasta', 4.00, 'pasta.jpeg'),
+('Herb chiken', 8.00, 'chicken.jpeg'),
+('Mini Tacos', 7.00, 'tacos.jpeg'),
+('Mediterranean Wrap', 7.00, 'wrap.jpeg'),
+('Asian Fusion Bowl', 6.00, 'asian.jpeg'),
+('Gourmet Toast', 4.00, 'gourmet.jpeg'),
+('Checkn Pasta', 3.00, 'Checkenpasta.jpeg'),
+('Pizza Burger', 4.00, 'pizzaburger.jpeg'),
+('Shawarma', 3.00, 'Shawarma.jpeg'),
+('Crispy', 5.00, 'Crispy.jpeg'),
+('Kebab', 5.00, 'Kebab.jpeg'),
+('Maqluba', 3.00, 'Maqluba.jpeg'),
+('Chicken potatoes', 6.00, 'chickenpot.jpeg');
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  location VARCHAR(150),
+  total DECIMAL(8,2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT,
+  item_name VARCHAR(150),
+  price DECIMAL(6,2),
+  quantity INT,
+  FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
