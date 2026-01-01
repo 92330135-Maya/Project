@@ -26,15 +26,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* ================== MySQL Connection ================== */
-// parse DATABASE_URL
-const dbUrl = new URL(process.env.DATABASE_URL);
-const db = mysql.createConnection({
-  host: dbUrl.hostname,
-  user: dbUrl.username,
-  password: dbUrl.password,
-  database: dbUrl.pathname.replace(/^\//, ""),
-  port: dbUrl.port
-});
+// استخدمي DATABASE_URL مباشرة
+const db = mysql.createConnection(process.env.DATABASE_URL);
 
 db.connect((err) => {
   if (err) console.log("DB connection error:", err);
@@ -45,10 +38,11 @@ db.connect((err) => {
 app.get("/menu", (req, res) => {
   db.query("SELECT id, item_name, price, image FROM menu", (err, data) => {
     if (err) return res.status(500).json(err);
-
-    const menuWithImageURL = data.map(item => ({
+    const menuWithImageURL = data.map((item) => ({
       ...item,
-      image: item.image ? `${req.protocol}://${req.get("host")}/image/${item.image}` : null
+      image: item.image
+        ? `${req.protocol}://${req.get("host")}/image/${item.image}`
+        : null,
     }));
     res.json(menuWithImageURL);
   });
@@ -77,11 +71,21 @@ app.post("/orders", (req, res) => {
       if (err) return res.status(500).json(err);
 
       const orderId = result.insertId;
-      const values = items.map(item => [orderId, item.item_name, item.price, item.quantity]);
-      db.query("INSERT INTO order_items (order_id, item_name, price, quantity) VALUES ?", [values], (err2) => {
-        if (err2) return res.status(500).json(err2);
-        res.json({ success: true, orderId });
-      });
+      const values = items.map((item) => [
+        orderId,
+        item.item_name,
+        item.price,
+        item.quantity,
+      ]);
+
+      db.query(
+        "INSERT INTO order_items (order_id, item_name, price, quantity) VALUES ?",
+        [values],
+        (err2) => {
+          if (err2) return res.status(500).json(err2);
+          res.json({ success: true, orderId });
+        }
+      );
     }
   );
 });
