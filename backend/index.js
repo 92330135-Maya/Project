@@ -26,13 +26,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* ================== MySQL Connection ================== */
-const db = mysql.createConnection({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT,
-});
+// استخدمي DATABASE_URL مباشرة
+const db = mysql.createConnection(process.env.DATABASE_URL);
 
 db.connect((err) => {
   if (err) console.log("DB connection error:", err);
@@ -42,10 +37,12 @@ db.connect((err) => {
 /* ================== MENU ROUTES ================== */
 app.get("/menu", (req, res) => {
   db.query("SELECT id, item_name, price, image FROM menu", (err, data) => {
-    if (err) return res.json(err);
-    const menuWithImageURL = data.map(item => ({
+    if (err) return res.status(500).json(err);
+    const menuWithImageURL = data.map((item) => ({
       ...item,
-      image: item.image ? `${req.protocol}://${req.get("host")}/image/${item.image}` : null
+      image: item.image
+        ? `${req.protocol}://${req.get("host")}/image/${item.image}`
+        : null,
     }));
     res.json(menuWithImageURL);
   });
@@ -54,10 +51,14 @@ app.get("/menu", (req, res) => {
 app.post("/menu", upload.single("image"), (req, res) => {
   const { name, price } = req.body;
   const image = req.file ? req.file.filename : null;
-  db.query("INSERT INTO menu (item_name, price, image) VALUES (?, ?, ?)", [name, price, image], (err) => {
-    if (err) return res.status(500).json(err);
-    res.json("Menu Added Successfully");
-  });
+  db.query(
+    "INSERT INTO menu (item_name, price, image) VALUES (?, ?, ?)",
+    [name, price, image],
+    (err) => {
+      if (err) return res.status(500).json(err);
+      res.json("Menu Added Successfully");
+    }
+  );
 });
 
 /* ================== ORDERS ROUTE ================== */
@@ -68,12 +69,23 @@ app.post("/orders", (req, res) => {
     [customer.name, customer.email, customer.location, total],
     (err, result) => {
       if (err) return res.status(500).json(err);
+
       const orderId = result.insertId;
-      const values = items.map(item => [orderId, item.item_name, item.price, item.quantity]);
-      db.query("INSERT INTO order_items (order_id, item_name, price, quantity) VALUES ?", [values], (err2) => {
-        if (err2) return res.status(500).json(err2);
-        res.json({ success: true, orderId });
-      });
+      const values = items.map((item) => [
+        orderId,
+        item.item_name,
+        item.price,
+        item.quantity,
+      ]);
+
+      db.query(
+        "INSERT INTO order_items (order_id, item_name, price, quantity) VALUES ?",
+        [values],
+        (err2) => {
+          if (err2) return res.status(500).json(err2);
+          res.json({ success: true, orderId });
+        }
+      );
     }
   );
 });
@@ -81,17 +93,23 @@ app.post("/orders", (req, res) => {
 /* ================== REGISTER ================== */
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ message: "All fields required" });
+  if (!name || !email || !password)
+    return res.status(400).json({ message: "All fields required" });
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    db.query("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", [name, email, hashedPassword], (err, result) => {
-      if (err) {
-        if (err.code === "ER_DUP_ENTRY") return res.status(400).json({ message: "Email already exists" });
-        return res.status(500).json({ message: "Database error" });
+    db.query(
+      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+      [name, email, hashedPassword],
+      (err, result) => {
+        if (err) {
+          if (err.code === "ER_DUP_ENTRY")
+            return res.status(400).json({ message: "Email already exists" });
+          return res.status(500).json({ message: "Database error" });
+        }
+        res.json({ message: "User registered successfully", userId: result.insertId });
       }
-      res.json({ message: "User registered successfully", userId: result.insertId });
-    });
+    );
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -100,18 +118,28 @@ app.post("/register", async (req, res) => {
 /* ================== LOGIN ================== */
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ message: "All fields required" });
+  if (!email || !password)
+    return res.status(400).json({ message: "All fields required" });
 
-  db.query("SELECT id, name, email, password FROM users WHERE email = ?", [email], async (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error" });
-    if (result.length === 0) return res.status(401).json({ message: "Invalid email or password" });
+  db.query(
+    "SELECT id, name, email, password FROM users WHERE email = ?",
+    [email],
+    async (err, result) => {
+      if (err) return res.status(500).json({ message: "Database error" });
+      if (result.length === 0)
+        return res.status(401).json({ message: "Invalid email or password" });
 
-    const user = result[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
+      const user = result[0];
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(401).json({ message: "Invalid email or password" });
 
-    res.json({ message: "Login successful", user: { id: user.id, name: user.name, email: user.email } });
-  });
+      res.json({
+        message: "Login successful",
+        user: { id: user.id, name: user.name, email: user.email },
+      });
+    }
+  );
 });
 
 /* ================== START SERVER ================== */
