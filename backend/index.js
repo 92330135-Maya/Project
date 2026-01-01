@@ -27,11 +27,11 @@ const upload = multer({ storage });
 
 /* ================== MySQL Connection ================== */
 const db = mysql.createConnection({
-  host: process.env.MYSQLHOST || "localhost",
-  user: process.env.MYSQLUSER || "root",
-  password: process.env.MYSQLPASSWORD || "",
-  database: process.env.MYSQLDATABASE || "Data",
-  port: process.env.MYSQLPORT || 3306
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT,
 });
 
 db.connect((err) => {
