@@ -62,20 +62,26 @@ app.post("/menu", upload.single("image"), (req, res) => {
 });
 
 /* ================== ORDERS ROUTE ================== */
+//orders
 app.post("/orders", (req, res) => {
   const { customer, items, total } = req.body;
+
+  const q =
+    "INSERT INTO orders (name, email, location, total) VALUES (?, ?, ?, ?)";
+
   db.query(
-    "INSERT INTO orders (name, email, location, total) VALUES (?, ?, ?, ?)",
-    [customer.name, customer.email, customer.location, total],
+    q,
+    [customer.name, customer.email, customer.Location, total],
     (err, result) => {
       if (err) return res.status(500).json(err);
 
       const orderId = result.insertId;
+
       const values = items.map((item) => [
         orderId,
         item.item_name,
         item.price,
-        item.quantity,
+        item.counter,
       ]);
 
       db.query(
@@ -83,12 +89,13 @@ app.post("/orders", (req, res) => {
         [values],
         (err2) => {
           if (err2) return res.status(500).json(err2);
-          res.json({ success: true, orderId });
+          res.json({ success: true });
         }
       );
     }
   );
 });
+
 
 /* ================== REGISTER ================== */
 app.post("/register", async (req, res) => {
